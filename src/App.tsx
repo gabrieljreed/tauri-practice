@@ -2,6 +2,8 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
+import { Button } from "@/components/ui/button";
+import { DialogDemo } from "./components/ui/dialog_demo";
 
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
@@ -51,9 +53,11 @@ function App() {
           onChange={(e) => setName(e.currentTarget.value)}
           placeholder="Enter a name..."
         />
-        <button type="submit">Greet</button>
+        <button type="submit" class="font-bold">Greet</button>
       </form>
       <p>{greetMsg}</p>
+      <Button onClick={callRust}>Call Rust Function</Button>
+      <DialogDemo />
     </main>
   );
 }
