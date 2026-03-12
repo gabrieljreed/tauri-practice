@@ -26,11 +26,19 @@ fn create_grid(size: GridSize) -> Result<String, String> {
     ))
 }
 
+#[tauri::command]
+fn hard_calculation(current_count: i64) -> Result<i64, String> {
+    // Simulate a hard calculation by sleeping for a few seconds
+    std::thread::sleep(std::time::Duration::from_secs(1));
+    let result = (0..current_count).fold(0, |acc, x| acc + x * x);
+    Ok(result)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet, create_grid])
+        .invoke_handler(tauri::generate_handler![greet, create_grid, hard_calculation])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
