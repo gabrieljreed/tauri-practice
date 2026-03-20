@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
+import { useSettingsStore } from "./stores/useSettingsStore";
 import { Button } from "@/components/ui/button";
 import { CardDemoUndo } from "./components/ui/card-demo-undo";
 import { CardDemoRust } from "./components/ui/card-demo-rust";
@@ -63,68 +64,92 @@ const TEST_PUZZLE: PuzzleData = {
 
 
 function App() {
-  const [savedId, setSavedId] = useState<number | null>(null);
-  const [loadedPuzzle, setLoadedPuzzle] = useState<PuzzleData | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { settings, updateSetting, loadSettings, isLoaded } = useSettingsStore();
 
-  async function handleSave() {
-    setError(null);
-    try {
-      const id = await invoke<number>("save_puzzle", { puzzle: TEST_PUZZLE });
-      setSavedId(id);
-      console.log("Saved puzzle with id:", id);
-    } catch (e) {
-      setError(`Save failed: ${e}`);
-    }
-  }
+  useEffect(() => {
+    loadSettings();
+  }, []); // Empty array: run once on mount (like __init__)
 
-  async function handleLoad() {
-    if (savedId === null) {
-      setError("Save a puzzle first to get an ID");
-      return;
-    }
-    setError(null);
-    try {
-      console.log("savedId:", savedId);
-      const puzzle = await invoke<PuzzleData>("load_puzzle", { puzzleId: savedId });
-      setLoadedPuzzle(puzzle);
-      console.log("Loaded puzzle", puzzle);
-    } catch (e) {
-      setError(`Load failed: ${e}`);
-    }
+  if (!isLoaded) {
+    return <div>Loading...</div>
   }
 
   return (
     <main style={{ padding: "2rem", fontFamily: "monospace" }}>
-      <h1>DB Test</h1>
-
-      <div style={{ marginBottom: "1rem" }}>
-        <button onClick={handleSave}>Save Test Puzzle</button>
-        {savedId !== null && (
-          <span style={{ marginLeft: "1rem" }}>
-            ✓ Saved with id: {savedId}
-          </span>
-        )}
-      </div>
-
-      <div style={{ marginBottom: "1rem" }}>
-        <button onClick={handleLoad} disabled={savedId === null}>
-          Load Puzzle {savedId ?? ""}
-        </button>
-      </div>
-
-      {error && (
-        <p style={{ color: "red" }}>{error}</p>
-      )}
-
-      {loadedPuzzle && (
-        <div>
-          <h2>Loaded Puzzle</h2>
-          <pre>{JSON.stringify(loadedPuzzle, null, 2)}</pre>
-        </div>
-      )}
+      <h1>Settings Test</h1>
+      <p>Default grid size: {settings.editor.defaultRows} x {settings.editor.defaultCols}</p>
+      <p>Theme: {settings.ui.theme}</p>
+      <button onClick={() =>
+        updateSetting("ui", { ...settings.ui, theme: settings.ui.theme === "light" ? "dark" : "light" })
+      }>
+        Toggle theme
+      </button>
+      <pre>{JSON.stringify(settings, null, 2)}</pre>
     </main>
   );
+
+  // const [savedId, setSavedId] = useState<number | null>(null);
+  // const [loadedPuzzle, setLoadedPuzzle] = useState<PuzzleData | null>(null);
+  // const [error, setError] = useState<string | null>(null);
+
+  // async function handleSave() {
+  //   setError(null);
+  //   try {
+  //     const id = await invoke<number>("save_puzzle", { puzzle: TEST_PUZZLE });
+  //     setSavedId(id);
+  //     console.log("Saved puzzle with id:", id);
+  //   } catch (e) {
+  //     setError(`Save failed: ${e}`);
+  //   }
+  // }
+
+  // async function handleLoad() {
+  //   if (savedId === null) {
+  //     setError("Save a puzzle first to get an ID");
+  //     return;
+  //   }
+  //   setError(null);
+  //   try {
+  //     console.log("savedId:", savedId);
+  //     const puzzle = await invoke<PuzzleData>("load_puzzle", { puzzleId: savedId });
+  //     setLoadedPuzzle(puzzle);
+  //     console.log("Loaded puzzle", puzzle);
+  //   } catch (e) {
+  //     setError(`Load failed: ${e}`);
+  //   }
+  // }
+
+  // return (
+  //   <main style={{ padding: "2rem", fontFamily: "monospace" }}>
+  //     <h1>DB Test</h1>
+
+  //     <div style={{ marginBottom: "1rem" }}>
+  //       <button onClick={handleSave}>Save Test Puzzle</button>
+  //       {savedId !== null && (
+  //         <span style={{ marginLeft: "1rem" }}>
+  //           ✓ Saved with id: {savedId}
+  //         </span>
+  //       )}
+  //     </div>
+
+  //     <div style={{ marginBottom: "1rem" }}>
+  //       <button onClick={handleLoad} disabled={savedId === null}>
+  //         Load Puzzle {savedId ?? ""}
+  //       </button>
+  //     </div>
+
+  //     {error && (
+  //       <p style={{ color: "red" }}>{error}</p>
+  //     )}
+
+  //     {loadedPuzzle && (
+  //       <div>
+  //         <h2>Loaded Puzzle</h2>
+  //         <pre>{JSON.stringify(loadedPuzzle, null, 2)}</pre>
+  //       </div>
+  //     )}
+  //   </main>
+  // );
 }
 
 export default App;

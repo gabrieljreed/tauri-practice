@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { useCounterStore } from "@/store/counterStore"
+import { useCounterStore } from "@/stores/counterStore"
 
 export function CardDemoBasic() {
   const { count, increment } = useCounterStore();

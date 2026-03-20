@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { useStoreWithUndo } from "@/store/counterStore"
+import { useStoreWithUndo } from "@/stores/counterStore"
 
 export function CardDemoUndo() {
   const { count, increment, reset, updateCount } = useStoreWithUndo();

@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { useTemporalRustCounterStore } from "@/store/counterStore"
+import { useTemporalRustCounterStore } from "@/stores/counterStore"
 
 export function CounterDemoRustUndo() {
   const { count, isCalculating, doHardCalculation } = useTemporalRustCounterStore();

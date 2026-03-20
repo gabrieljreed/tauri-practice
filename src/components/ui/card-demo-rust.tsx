@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { useRustCounterStore } from "@/store/counterStore"
+import { useRustCounterStore } from "@/stores/counterStore"
 
 export function CardDemoRust() {
   const { count, isCalculating, doHardCalculation } = useRustCounterStore();
