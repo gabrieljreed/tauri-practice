@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,11 +6,12 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { useTemporalRustCounterStore } from "@/stores/counterStore"
+} from "@/components/ui/card";
+import { useTemporalRustCounterStore } from "@/stores/counterStore";
 
 export function CounterDemoRustUndo() {
-  const { count, isCalculating, doHardCalculation } = useTemporalRustCounterStore();
+  const { count, isCalculating, doHardCalculation } =
+    useTemporalRustCounterStore();
   const { undo, redo, clear } = useTemporalRustCounterStore.temporal.getState();
 
   return (
@@ -25,7 +26,11 @@ export function CounterDemoRustUndo() {
         <p className="text-2xl font-bold">Count: {count}</p>
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button className="w-full" onClick={doHardCalculation} disabled={isCalculating}>
+        <Button
+          className="w-full"
+          onClick={doHardCalculation}
+          disabled={isCalculating}
+        >
           {isCalculating ? "Calculating..." : "Increment"}
         </Button>
         <div className="w-full">
@@ -38,5 +43,5 @@ export function CounterDemoRustUndo() {
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }

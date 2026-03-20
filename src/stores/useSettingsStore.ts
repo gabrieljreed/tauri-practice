@@ -1,5 +1,10 @@
 import { create } from "zustand";
-import { DEFAULT_SETTINGS, Settings, getSetting, setSetting } from "./settingsStore";
+import {
+  DEFAULT_SETTINGS,
+  Settings,
+  getSetting,
+  setSetting,
+} from "./settingsStore";
 
 interface SettingsState {
   settings: Settings;
@@ -24,7 +29,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     set({
       settings: { keybinds, ui, editor },
       isLoaded: true,
-    })
+    });
   },
 
   updateSetting: async (key, value) => {
@@ -35,4 +40,4 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     // Persist setting to disk
     await setSetting(key, value);
   },
-}))
+}));

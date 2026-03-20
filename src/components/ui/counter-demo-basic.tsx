@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,8 +6,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { useCounterStore } from "@/stores/counterStore"
+} from "@/components/ui/card";
+import { useCounterStore } from "@/stores/counterStore";
 
 export function CardDemoBasic() {
   const { count, increment } = useCounterStore();
@@ -29,5 +29,5 @@ export function CardDemoBasic() {
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }

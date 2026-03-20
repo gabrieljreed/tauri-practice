@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,13 +6,12 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { useStoreWithUndo } from "@/stores/counterStore"
+} from "@/components/ui/card";
+import { useStoreWithUndo } from "@/stores/counterStore";
 
 export function CardDemoUndo() {
   const { count, increment, reset, updateCount } = useStoreWithUndo();
   const { undo, redo, clear } = useStoreWithUndo.temporal.getState();
-
 
   return (
     <Card className="w-full max-w-sm">
@@ -34,5 +33,5 @@ export function CardDemoUndo() {
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }

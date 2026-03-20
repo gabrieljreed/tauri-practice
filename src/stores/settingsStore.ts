@@ -20,7 +20,11 @@ export const DEFAULT_SETTINGS = {
   editor: {
     defaultRows: 15,
     defaultCols: 15,
-    defaultSymmetry: "rotational" as "rotational" | "vertical" | "horizontal" | "none",
+    defaultSymmetry: "rotational" as
+      | "rotational"
+      | "vertical"
+      | "horizontal"
+      | "none",
   },
 };
 

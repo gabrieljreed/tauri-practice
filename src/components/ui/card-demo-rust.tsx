@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,8 +6,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { useRustCounterStore } from "@/stores/counterStore"
+} from "@/components/ui/card";
+import { useRustCounterStore } from "@/stores/counterStore";
 
 export function CardDemoRust() {
   const { count, isCalculating, doHardCalculation } = useRustCounterStore();
@@ -24,10 +24,14 @@ export function CardDemoRust() {
         <p className="text-2xl font-bold">Count: {count}</p>
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button className="w-full" onClick={doHardCalculation} disabled={isCalculating}>
+        <Button
+          className="w-full"
+          onClick={doHardCalculation}
+          disabled={isCalculating}
+        >
           {isCalculating ? "Calculating..." : "Increment"}
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
