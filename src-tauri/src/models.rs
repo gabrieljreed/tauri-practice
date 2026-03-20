@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-
 #[derive(Serialize, Deserialize)]
 pub struct CellData {
     pub row: i64,
@@ -19,7 +18,7 @@ pub struct ClueData {
 
 #[derive(Serialize, Deserialize)]
 pub struct PuzzleData {
-    pub id: Option<i64>,  // None when creating, Some(id) when loading
+    pub id: Option<i64>, // None when creating, Some(id) when loading
     pub title: Option<String>,
     pub author: Option<String>,
     pub notes: Option<String>,

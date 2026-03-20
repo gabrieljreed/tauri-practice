@@ -1,11 +1,10 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use tauri::Manager;
 
-mod models;
-mod db;
 mod commands;
+mod db;
 mod engine;
-
+mod models;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

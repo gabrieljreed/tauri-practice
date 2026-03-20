@@ -1,6 +1,5 @@
-use sqlx::sqlite::SqlitePoolOptions;
 use crate::models::{CellData, ClueData, PuzzleData};
-
+use sqlx::sqlite::SqlitePoolOptions;
 
 pub type DbPool = sqlx::Pool<sqlx::Sqlite>;
 
@@ -55,7 +54,7 @@ pub async fn db_save_puzzle(pool: &DbPool, puzzle: PuzzleData) -> Result<i64, St
         None => {
             let result = sqlx::query(
                 "INSERT INTO puzzles (title, author, notes, rows, cols, symmetry)
-                VALUES (?, ?, ?, ?, ?, ?)"
+                VALUES (?, ?, ?, ?, ?, ?)",
             )
             .bind(&puzzle.title)
             .bind(&puzzle.author)
@@ -74,7 +73,7 @@ pub async fn db_save_puzzle(pool: &DbPool, puzzle: PuzzleData) -> Result<i64, St
                 "UPDATE puzzles
                 SET title=?, author=?, notes=?, rows=?, cols=?, symmetry=?,
                     updated_at=datetime('now')
-                WHERE id=?"
+                WHERE id=?",
             )
             .bind(&puzzle.title)
             .bind(&puzzle.author)
@@ -106,7 +105,7 @@ pub async fn db_save_puzzle(pool: &DbPool, puzzle: PuzzleData) -> Result<i64, St
     for cell in &puzzle.cells {
         sqlx::query(
             "INSERT INTO cells (puzzle_id, row, col, is_black, letter, number)
-            VALUES (?, ?, ?, ?, ?, ?)"
+            VALUES (?, ?, ?, ?, ?, ?)",
         )
         .bind(puzzle_id)
         .bind(cell.row)
@@ -122,7 +121,7 @@ pub async fn db_save_puzzle(pool: &DbPool, puzzle: PuzzleData) -> Result<i64, St
     for clue in &puzzle.clues {
         sqlx::query(
             "INSERT INTO clues (puzzle_id, number, direction, clue_text)
-            VALUES(?, ?, ?, ?)"
+            VALUES(?, ?, ?, ?)",
         )
         .bind(puzzle_id)
         .bind(clue.number)
@@ -143,7 +142,7 @@ pub async fn db_load_puzzle(pool: &DbPool, puzzle_id: i64) -> Result<PuzzleData,
 
     let row = sqlx::query(
         "SELECT id, title, author, notes, rows, cols, symmetry
-         FROM puzzles WHERE id = ?"
+         FROM puzzles WHERE id = ?",
     )
     .bind(puzzle_id)
     .fetch_one(pool)
@@ -152,7 +151,7 @@ pub async fn db_load_puzzle(pool: &DbPool, puzzle_id: i64) -> Result<PuzzleData,
 
     let cell_rows = sqlx::query(
         "SELECT row, col, is_black, letter, number
-         FROM cells WHERE puzzle_id = ? ORDER BY row, col"
+         FROM cells WHERE puzzle_id = ? ORDER BY row, col",
     )
     .bind(puzzle_id)
     .fetch_all(pool)
@@ -161,31 +160,50 @@ pub async fn db_load_puzzle(pool: &DbPool, puzzle_id: i64) -> Result<PuzzleData,
 
     let clue_rows = sqlx::query(
         "SELECT number, direction, clue_text
-         FROM clues WHERE puzzle_id = ? ORDER BY number, direction"
+         FROM clues WHERE puzzle_id = ? ORDER BY number, direction",
     )
     .bind(puzzle_id)
     .fetch_all(pool)
     .await
     .map_err(|e| e.to_string())?;
 
-    let cells: Result<Vec<CellData>, _> = cell_rows.iter().map(|c| {
-        Ok(CellData {
-            row: c.try_get("row").map_err(|e: sqlx::Error| e.to_string())?,
-            col: c.try_get("col").map_err(|e: sqlx::Error| e.to_string())?,
-            is_black: c.try_get::<i64, _>("is_black").map_err(|e: sqlx::Error| e.to_string())? != 0,
-            letter: c.try_get("letter").map_err(|e: sqlx::Error| e.to_string())?,
-            number: c.try_get("number").map_err(|e: sqlx::Error| e.to_string())?,
+    let cells: Result<Vec<CellData>, _> = cell_rows
+        .iter()
+        .map(|c| {
+            Ok(CellData {
+                row: c.try_get("row").map_err(|e: sqlx::Error| e.to_string())?,
+                col: c.try_get("col").map_err(|e: sqlx::Error| e.to_string())?,
+                is_black: c
+                    .try_get::<i64, _>("is_black")
+                    .map_err(|e: sqlx::Error| e.to_string())?
+                    != 0,
+                letter: c
+                    .try_get("letter")
+                    .map_err(|e: sqlx::Error| e.to_string())?,
+                number: c
+                    .try_get("number")
+                    .map_err(|e: sqlx::Error| e.to_string())?,
+            })
         })
-    }).collect();
+        .collect();
     let cells = cells.map_err(|e: String| e)?;
 
-    let clues: Result<Vec<ClueData>, _> = clue_rows.iter().map(|c| {
-        Ok(ClueData {
-            number: c.try_get("number").map_err(|e: sqlx::Error| e.to_string())?,
-            direction: c.try_get("direction").map_err(|e: sqlx::Error| e.to_string())?,
-            clue_text: c.try_get("clue_text").map_err(|e: sqlx::Error| e.to_string())?,
+    let clues: Result<Vec<ClueData>, _> = clue_rows
+        .iter()
+        .map(|c| {
+            Ok(ClueData {
+                number: c
+                    .try_get("number")
+                    .map_err(|e: sqlx::Error| e.to_string())?,
+                direction: c
+                    .try_get("direction")
+                    .map_err(|e: sqlx::Error| e.to_string())?,
+                clue_text: c
+                    .try_get("clue_text")
+                    .map_err(|e: sqlx::Error| e.to_string())?,
+            })
         })
-    }).collect();
+        .collect();
     let clues = clues.map_err(|e: String| e)?;
 
     Ok(PuzzleData {
@@ -216,21 +234,91 @@ mod tests {
             cols: 3,
             symmetry: "rotational".to_string(),
             cells: vec![
-                CellData { row: 0, col: 0, is_black: false, letter: Some("C".to_string()), number: Some(1) },
-                CellData { row: 0, col: 1, is_black: false, letter: Some("A".to_string()), number: Some(2) },
-                CellData { row: 0, col: 2, is_black: false, letter: Some("T".to_string()), number: None },
-                CellData { row: 1, col: 0, is_black: true,  letter: None, number: None },
-                CellData { row: 1, col: 1, is_black: false, letter: Some("B".to_string()), number: None },
-                CellData { row: 1, col: 2, is_black: true,  letter: None, number: None },
-                CellData { row: 2, col: 0, is_black: false, letter: Some("D".to_string()), number: Some(3) },
-                CellData { row: 2, col: 1, is_black: false, letter: Some("O".to_string()), number: None },
-                CellData { row: 2, col: 2, is_black: false, letter: Some("G".to_string()), number: None },
+                CellData {
+                    row: 0,
+                    col: 0,
+                    is_black: false,
+                    letter: Some("C".to_string()),
+                    number: Some(1),
+                },
+                CellData {
+                    row: 0,
+                    col: 1,
+                    is_black: false,
+                    letter: Some("A".to_string()),
+                    number: Some(2),
+                },
+                CellData {
+                    row: 0,
+                    col: 2,
+                    is_black: false,
+                    letter: Some("T".to_string()),
+                    number: None,
+                },
+                CellData {
+                    row: 1,
+                    col: 0,
+                    is_black: true,
+                    letter: None,
+                    number: None,
+                },
+                CellData {
+                    row: 1,
+                    col: 1,
+                    is_black: false,
+                    letter: Some("B".to_string()),
+                    number: None,
+                },
+                CellData {
+                    row: 1,
+                    col: 2,
+                    is_black: true,
+                    letter: None,
+                    number: None,
+                },
+                CellData {
+                    row: 2,
+                    col: 0,
+                    is_black: false,
+                    letter: Some("D".to_string()),
+                    number: Some(3),
+                },
+                CellData {
+                    row: 2,
+                    col: 1,
+                    is_black: false,
+                    letter: Some("O".to_string()),
+                    number: None,
+                },
+                CellData {
+                    row: 2,
+                    col: 2,
+                    is_black: false,
+                    letter: Some("G".to_string()),
+                    number: None,
+                },
             ],
             clues: vec![
-                ClueData { number: 1, direction: "across".to_string(), clue_text: Some("Feline".to_string()) },
-                ClueData { number: 3, direction: "across".to_string(), clue_text: Some("Canine".to_string()) },
-                ClueData { number: 1, direction: "down".to_string(),   clue_text: Some("Cold remedy".to_string()) },
-                ClueData { number: 2, direction: "down".to_string(),   clue_text: Some("Insect home".to_string()) },
+                ClueData {
+                    number: 1,
+                    direction: "across".to_string(),
+                    clue_text: Some("Feline".to_string()),
+                },
+                ClueData {
+                    number: 3,
+                    direction: "across".to_string(),
+                    clue_text: Some("Canine".to_string()),
+                },
+                ClueData {
+                    number: 1,
+                    direction: "down".to_string(),
+                    clue_text: Some("Cold remedy".to_string()),
+                },
+                ClueData {
+                    number: 2,
+                    direction: "down".to_string(),
+                    clue_text: Some("Insect home".to_string()),
+                },
             ],
         }
     }
@@ -314,9 +402,13 @@ mod tests {
 
         // Save again with only 1 cell
         let mut updated = make_test_puzzle(Some(id));
-        updated.cells = vec![
-            CellData { row: 0, col: 0, is_black: false, letter: Some("X".to_string()), number: Some(1) },
-        ];
+        updated.cells = vec![CellData {
+            row: 0,
+            col: 0,
+            is_black: false,
+            letter: Some("X".to_string()),
+            number: Some(1),
+        }];
         db_save_puzzle(&pool, updated).await.unwrap();
 
         // Should have 1 cell, not 9 — confirms delete-then-reinsert works
@@ -329,6 +421,9 @@ mod tests {
     async fn test_load_nonexistent_puzzle() {
         let pool = setup_test_db().await;
         let result = db_load_puzzle(&pool, 99999).await;
-        assert!(result.is_err(), "Expected error when loading nonexistent puzzle");
+        assert!(
+            result.is_err(),
+            "Expected error when loading nonexistent puzzle"
+        );
     }
 }
