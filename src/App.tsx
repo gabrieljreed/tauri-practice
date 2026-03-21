@@ -14,7 +14,7 @@ interface NavState {
 }
 
 export const useNavStore = create<NavState>((set) => ({
-  currentView: "dev",
+  currentView: "editor",
   navigate: (view) => set({ currentView: view }),
 }));
 
