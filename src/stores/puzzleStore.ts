@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { temporal } from "zundo";
 import { Puzzle, Grid, Cell, Direction } from "@/types/puzzle";
+import { computeNumbers } from "@/utils/numbering";
 
 // TODO: Use the one from utils
 export function makeEmptyGrid(width: number, height: number): Grid {
@@ -36,7 +37,7 @@ export const usePuzzleStore = create<PuzzleState>()(
           id: null,
           title: "Untitled",
           author: "",
-          grid: makeEmptyGrid(width, height),
+          grid: computeNumbers(makeEmptyGrid(width, height)),
           clues: [],
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -60,10 +61,22 @@ export const usePuzzleStore = create<PuzzleState>()(
       const { puzzle, setCell } = get();
       if (!puzzle) return;
       const isBlack = !puzzle.grid.cells[row][col].isBlack;
-      setCell(row, col, { isBlack, letter: "" });
       const mirrorRow = puzzle.grid.height - 1 - row;
       const mirrorCol = puzzle.grid.height - 1 - col;
-      setCell(mirrorRow, mirrorCol, { isBlack, letter: "" });
+      set((state) => {
+        if (!state.puzzle) return state;
+        const cells = state.puzzle.grid.cells.map((r) => [...r]);
+        cells[row][col] = { ...cells[row][col], isBlack, letter: "" };
+        cells[mirrorRow][mirrorCol] = {
+          ...cells[row][col],
+          isBlack,
+          letter: "",
+        };
+        const newGrid = computeNumbers({ ...state.puzzle.grid, cells });
+        return {
+          puzzle: { ...state.puzzle, grid: newGrid },
+        };
+      });
     },
 
     setClue: (number, direction, text) =>

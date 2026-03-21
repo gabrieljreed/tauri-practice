@@ -2,6 +2,7 @@ import { usePuzzleStore } from "@/stores/puzzleStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { Cell } from "@/types/puzzle";
 import { useRef, useEffect } from "react";
+import { getActiveWord } from "@/utils/grid";
 
 export function Grid() {
   const puzzle = usePuzzleStore((s) => s.puzzle);
@@ -15,11 +16,21 @@ export function Grid() {
 
   useEffect(() => {
     if (puzzle) gridRef.current?.focus();
+    console.log("focusing");
   }, [puzzle]);
 
   if (!puzzle) return <div>No puzzle loaded</div>;
 
   const { grid } = puzzle;
+  const activeWord =
+    cursor && !grid.cells[cursor.row][cursor.col].isBlack
+      ? getActiveWord(grid, cursor, direction)
+      : null;
+  const highlightedKeys = new Set(
+    activeWord?.cells.map(({ row, col }) => `${row},${col}`) ?? []
+  );
+  console.log(highlightedKeys);
+  // How does this get updated? There's no useState or anything?
 
   function handleCellClick(row: number, col: number) {
     // Clicking on already selected cell toggles direction
@@ -109,6 +120,7 @@ export function Grid() {
               key={colIdx}
               cell={cell}
               isSelected={cursor?.row === rowIdx && cursor?.col === colIdx}
+              isHighlighted={highlightedKeys.has(`${rowIdx},${colIdx}`)}
               onClick={() => handleCellClick(rowIdx, colIdx)}
             />
           ))}
@@ -121,14 +133,15 @@ export function Grid() {
 interface GridCellProps {
   cell: Cell;
   isSelected: boolean;
+  isHighlighted: boolean;
   onClick: () => void;
 }
 
-function GridCell({ cell, isSelected, onClick }: GridCellProps) {
+function GridCell({ cell, isSelected, isHighlighted, onClick }: GridCellProps) {
   let bgColor = "bg-white";
   if (cell.isBlack) bgColor = "bg-black";
   else if (isSelected) bgColor = "bg-blue-400";
-  else if (cell.isHighlighted) bgColor = "bg-blue-100";
+  else if (isHighlighted) bgColor = "bg-blue-100";
 
   return (
     <div
