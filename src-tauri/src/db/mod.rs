@@ -1,4 +1,4 @@
-use crate::models::{CellData, ClueData, PuzzleData};
+use crate::models::db::{CellData, ClueData, PuzzleData};
 use sqlx::sqlite::SqlitePoolOptions;
 
 pub type DbPool = sqlx::Pool<sqlx::Sqlite>;

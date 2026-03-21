@@ -1,5 +1,5 @@
 use crate::db::{db_load_puzzle, db_save_puzzle, DbPool};
-use crate::models::PuzzleData;
+use crate::models::db::PuzzleData;
 
 #[tauri::command]
 pub async fn save_puzzle(
