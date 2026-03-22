@@ -55,3 +55,30 @@ export function getActiveWord(
     return { cells, startRow, startCol: col };
   }
 }
+
+export function getWordStarts(
+  grid: Grid,
+  direction: Direction
+): CursorPosition[] {
+  const starts: CursorPosition[] = [];
+  for (let row = 0; row < grid.height; row++) {
+    for (let col = 0; col < grid.width; col++) {
+      const cell = grid.cells[row][col];
+      if (cell.isBlack || cell.number === null) continue;
+      if (direction === "across") {
+        const startsAcross =
+          (col === 0 || grid.cells[row][col - 1].isBlack) &&
+          col + 1 < grid.width &&
+          !grid.cells[row][col + 1].isBlack;
+        if (startsAcross) starts.push({ row, col });
+      } else {
+        const startsDown =
+          (row === 0 || grid.cells[row - 1][col].isBlack) &&
+          row + 1 < grid.height &&
+          !grid.cells[row + 1][col].isBlack;
+        if (startsDown) starts.push({ row, col });
+      }
+    }
+  }
+  return starts;
+}

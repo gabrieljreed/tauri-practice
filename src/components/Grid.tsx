@@ -2,7 +2,7 @@ import { usePuzzleStore } from "@/stores/puzzleStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { Cell } from "@/types/puzzle";
 import { useRef, useEffect } from "react";
-import { getActiveWord } from "@/utils/grid";
+import { getActiveWord, getWordStarts } from "@/utils/grid";
 
 export function Grid() {
   const puzzle = usePuzzleStore((s) => s.puzzle);
@@ -50,6 +50,28 @@ export function Grid() {
     // Space toggles black square
     if (e.key === " ") {
       toggleBlack(row, col);
+      return;
+    }
+
+    // Handle tab navigation
+    if (e.key === "Tab") {
+      const wordStarts = getWordStarts(grid, direction);
+      if (wordStarts.length === 0) return;
+
+      const activeWord = cursor ? getActiveWord(grid, cursor, direction) : null;
+
+      // Find where we are in the word list
+      const currentStart = activeWord
+        ? `${activeWord.startRow},${activeWord.startCol}`
+        : "";
+      const currentIndex = wordStarts.findIndex(
+        ({ row, col }) => `${row},${col}` === currentStart
+      );
+      // Tab: next word; Shift+Tab: previous word
+      const delta = e.shiftKey ? -1 : 1;
+      const nextIndex =
+        (currentIndex + delta + wordStarts.length) % wordStarts.length;
+      setCursor(wordStarts[nextIndex]);
       return;
     }
 
